@@ -367,6 +367,18 @@ table.rates-table td.rate-value {
   font-size: 0.93rem;
 }
 
+.step-qr {
+  display: block;
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-top: 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  padding: 6px;
+  background: var(--white);
+}
+
 /* Contact */
 .contact-card {
   background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
