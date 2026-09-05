@@ -37,12 +37,21 @@
     <div class="rate-main">
       <div>
         <div class="label" id="rate-currency-label">USD إلى الدينار الليبي</div>
-        <div class="value" id="main-rate-value">10</div>
+        <div class="rate-dual">
+          <div class="rate-stat">
+            <div class="rate-stat-label" id="sell-rate-label">سعر البيع</div>
+            <div class="value" id="sell-rate-value">10</div>
+          </div>
+          <div class="rate-stat">
+            <div class="rate-stat-label" id="buy-rate-label">سعر الشراء</div>
+            <div class="value" id="buy-rate-value">9.8</div>
+          </div>
+        </div>
         <div class="rate-updated"><span data-i18n="last_updated">آخر تحديث</span>: <span id="rate-updated-value">-</span></div>
       </div>
       <span class="rate-badge" data-i18n="rate_title">سعر الصرف اليوم</span>
     </div>
-    <p class="section-sub" style="margin:0;" data-i18n="rate_sell_note">السعر الموضح هو سعر البيع.</p>
+    <p class="section-sub" style="margin:0;" data-i18n="rate_sell_note">سعر البيع يُستخدم عند تحويل الأموال إلى ليبيا، وسعر الشراء يُستخدم عند التحويل العكسي.</p>
   </div>
 </div>
 
@@ -109,7 +118,7 @@
         <div class="step-num">1</div>
         <h3 data-i18n="step1_title">أرسل المبلغ عبر Binance</h3>
         <p data-i18n="step1_body">أرسل المبلغ المراد سحبه إلى حسابنا على Binance باستخدام عملة USDT.</p>
-        <img src="assets/qr.jpeg" alt="Binance QR code" class="step-qr">
+        <img src="assets/qr.jpeg" alt="Binance QR code" class="step-qr" width="220" height="220">
       </div>
       <div class="step">
         <div class="step-num">2</div>

@@ -24,18 +24,21 @@
 
   <div class="admin-card">
     <h2 data-i18n="current_title">Current Currencies</h2>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th data-i18n="th_code">Code</th>
-          <th data-i18n="th_name">Name</th>
-          <th data-i18n="th_rate">Rate to LYD</th>
-          <th data-i18n="th_updated">Last Updated</th>
-          <th data-i18n="th_actions">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="admin-table-body"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th data-i18n="th_code">Code</th>
+            <th data-i18n="th_name">Name</th>
+            <th data-i18n="th_sell">Sell Rate</th>
+            <th data-i18n="th_buy">Buy Rate</th>
+            <th data-i18n="th_updated">Last Updated</th>
+            <th data-i18n="th_actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table-body"></tbody>
+      </table>
+    </div>
     <div class="status-msg" id="status-msg"></div>
   </div>
 
@@ -51,10 +54,13 @@
         <input type="text" id="new-name" placeholder="Euro">
       </div>
       <div>
-        <label for="new-rate" data-i18n="lbl_rate">Rate to LYD</label>
-        <input type="number" id="new-rate" step="any" min="0" placeholder="5.4" required>
+        <label for="new-sell" data-i18n="lbl_sell">Sell Rate</label>
+        <input type="number" id="new-sell" step="any" min="0" placeholder="5.4" required>
       </div>
-      <div></div>
+      <div>
+        <label for="new-buy" data-i18n="lbl_buy">Buy Rate</label>
+        <input type="number" id="new-buy" step="any" min="0" placeholder="5.2" required>
+      </div>
       <button type="submit" class="btn btn-primary" data-i18n="btn_add">Add Currency</button>
     </form>
   </div>

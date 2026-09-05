@@ -9,13 +9,15 @@ const ADMIN_I18N = {
     current_title: "العملات الحالية",
     th_code: "الرمز",
     th_name: "الاسم",
-    th_rate: "السعر مقابل الدينار الليبي",
+    th_sell: "سعر البيع",
+    th_buy: "سعر الشراء",
     th_updated: "آخر تحديث",
     th_actions: "إجراءات",
     add_title: "إضافة عملة",
     lbl_code: "الرمز",
     lbl_name: "الاسم",
-    lbl_rate: "السعر مقابل الدينار الليبي",
+    lbl_sell: "سعر البيع",
+    lbl_buy: "سعر الشراء",
     btn_add: "إضافة عملة",
     btn_save: "حفظ",
     btn_delete: "حذف",
@@ -28,13 +30,15 @@ const ADMIN_I18N = {
     current_title: "Current Currencies",
     th_code: "Code",
     th_name: "Name",
-    th_rate: "Rate to LYD",
+    th_sell: "Sell Rate",
+    th_buy: "Buy Rate",
     th_updated: "Last Updated",
     th_actions: "Actions",
     add_title: "Add Currency",
     lbl_code: "Code",
     lbl_name: "Name",
-    lbl_rate: "Rate to LYD",
+    lbl_sell: "Sell Rate",
+    lbl_buy: "Buy Rate",
     btn_add: "Add Currency",
     btn_save: "Save",
     btn_delete: "Delete",
@@ -109,7 +113,8 @@ function renderTable(rates) {
       tr.innerHTML = `
         <td>${r.code}</td>
         <td><input type="text" value="${r.name || ""}" data-field="name" data-id="${r.id}"></td>
-        <td><input type="number" step="any" value="${r.rateToLYD}" data-field="rateToLYD" data-id="${r.id}"></td>
+        <td><input type="number" step="any" value="${r.sellRate}" data-field="sellRate" data-id="${r.id}"></td>
+        <td><input type="number" step="any" value="${r.buyRate}" data-field="buyRate" data-id="${r.id}"></td>
         <td class="timestamp">${formatTimestamp(r.updatedAt)}</td>
         <td>
           <button class="btn btn-success btn-sm" data-action="save" data-id="${r.id}">${t.btn_save}</button>
@@ -128,19 +133,21 @@ function renderTable(rates) {
 
 function saveCurrency(id) {
   const nameInput = document.querySelector(`[data-field="name"][data-id="${id}"]`);
-  const rateInput = document.querySelector(`[data-field="rateToLYD"][data-id="${id}"]`);
+  const sellInput = document.querySelector(`[data-field="sellRate"][data-id="${id}"]`);
+  const buyInput = document.querySelector(`[data-field="buyRate"][data-id="${id}"]`);
   const name = nameInput.value.trim();
-  const rate = parseFloat(rateInput.value);
-  if (!rate || rate <= 0) {
-    showStatus("Rate must be a positive number.", true);
+  const sellRate = parseFloat(sellInput.value);
+  const buyRate = parseFloat(buyInput.value);
+  if (!sellRate || sellRate <= 0 || !buyRate || buyRate <= 0) {
+    showStatus("Sell and buy rates must be positive numbers.", true);
     return;
   }
   const now = firebase.firestore.FieldValue.serverTimestamp();
   db.collection(window.RATES_COLLECTION)
     .doc(id)
-    .set({ code: id, name, rateToLYD: rate, updatedAt: now }, { merge: true })
+    .set({ code: id, name, sellRate, buyRate, updatedAt: now }, { merge: true })
     .then(() => {
-      db.collection(window.RATES_COLLECTION).doc(id).collection("history").add({ rateToLYD: rate, updatedAt: now });
+      db.collection(window.RATES_COLLECTION).doc(id).collection("history").add({ sellRate, buyRate, updatedAt: now });
       showStatus(`${id} updated.`, false);
     })
     .catch((err) => showStatus("Save failed: " + err.message, true));
@@ -159,23 +166,24 @@ function addCurrency(e) {
   e.preventDefault();
   const code = document.getElementById("new-code").value.trim().toUpperCase();
   const name = document.getElementById("new-name").value.trim();
-  const rate = parseFloat(document.getElementById("new-rate").value);
+  const sellRate = parseFloat(document.getElementById("new-sell").value);
+  const buyRate = parseFloat(document.getElementById("new-buy").value);
 
   if (!code || !/^[A-Z]{3,5}$/.test(code)) {
     showStatus("Enter a valid currency code (e.g. EUR).", true);
     return;
   }
-  if (!rate || rate <= 0) {
-    showStatus("Rate must be a positive number.", true);
+  if (!sellRate || sellRate <= 0 || !buyRate || buyRate <= 0) {
+    showStatus("Sell and buy rates must be positive numbers.", true);
     return;
   }
 
   const now = firebase.firestore.FieldValue.serverTimestamp();
   db.collection(window.RATES_COLLECTION)
     .doc(code)
-    .set({ code, name: name || code, rateToLYD: rate, updatedAt: now })
+    .set({ code, name: name || code, sellRate, buyRate, updatedAt: now })
     .then(() => {
-      db.collection(window.RATES_COLLECTION).doc(code).collection("history").add({ rateToLYD: rate, updatedAt: now });
+      db.collection(window.RATES_COLLECTION).doc(code).collection("history").add({ sellRate, buyRate, updatedAt: now });
       showStatus(`${code} added.`, false);
       document.getElementById("add-form").reset();
     })
@@ -184,8 +192,8 @@ function addCurrency(e) {
 
 function ensureSeedCurrencies() {
   const seeds = [
-    { code: "USD", name: "US Dollar", rateToLYD: 10 },
-    { code: "EUR", name: "Euro", rateToLYD: 11 }
+    { code: "USD", name: "US Dollar", sellRate: 10, buyRate: 9.8 },
+    { code: "EUR", name: "Euro", sellRate: 11, buyRate: 10.8 }
   ];
   seeds.forEach((seed) => {
     const ref = db.collection(window.RATES_COLLECTION).doc(seed.code);
@@ -193,7 +201,7 @@ function ensureSeedCurrencies() {
       if (!doc.exists) {
         const now = firebase.firestore.FieldValue.serverTimestamp();
         ref.set({ ...seed, updatedAt: now });
-        ref.collection("history").add({ rateToLYD: seed.rateToLYD, updatedAt: now });
+        ref.collection("history").add({ sellRate: seed.sellRate, buyRate: seed.buyRate, updatedAt: now });
       }
     });
   });

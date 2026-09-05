@@ -369,14 +369,28 @@ table.rates-table td.rate-value {
 
 .step-qr {
   display: block;
-  width: 140px;
-  height: 140px;
+  width: 220px;
+  height: 220px;
+  max-width: 100%;
   object-fit: contain;
   margin-top: 14px;
   border: 1px solid var(--gray-300);
   border-radius: 8px;
   padding: 6px;
   background: var(--white);
+}
+
+.rate-dual {
+  display: flex;
+  gap: 28px;
+  margin-top: 4px;
+}
+
+.rate-stat-label {
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  font-weight: 700;
+  margin-bottom: 2px;
 }
 
 /* Contact */
@@ -558,8 +572,13 @@ footer .contact-item:hover {
   margin-top: 0;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 table.admin-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
 }
 

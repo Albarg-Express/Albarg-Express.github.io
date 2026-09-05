@@ -1,7 +1,7 @@
 // Fallback data shown before Firestore loads or if it fails.
 const FALLBACK_RATES = [
-  { code: "USD", name: "US Dollar", rateToLYD: 10, updatedAt: null },
-  { code: "EUR", name: "Euro", rateToLYD: 11, updatedAt: null }
+  { code: "USD", name: "US Dollar", sellRate: 10, buyRate: 9.8, updatedAt: null },
+  { code: "EUR", name: "Euro", sellRate: 11, buyRate: 10.8, updatedAt: null }
 ];
 
 let currentRates = FALLBACK_RATES.slice();
@@ -18,7 +18,9 @@ const I18N = {
     hero_service: "نحوّل أموالك من Binance إلى ليبيا بدينار ليبي، بشفافية كاملة في الرسوم.",
     rate_title: "سعر الصرف اليوم",
     rate_to_lyd: "إلى الدينار الليبي",
-    rate_sell_note: "السعر الموضح هو سعر البيع.",
+    rate_sell_label: "سعر البيع",
+    rate_buy_label: "سعر الشراء",
+    rate_sell_note: "سعر البيع يُستخدم عند تحويل الأموال إلى ليبيا، وسعر الشراء يُستخدم عند التحويل العكسي.",
     last_updated: "آخر تحديث",
     calc_title: "احسب المبلغ المراد سحبه",
     calc_amount_label_to: "المبلغ المراد سحبه",
@@ -57,7 +59,9 @@ const I18N = {
     hero_service: "We transfer your money from Binance to Libya in Libyan Dinar, with full fee transparency.",
     rate_title: "Today's Exchange Rate",
     rate_to_lyd: "to Libyan Dinar",
-    rate_sell_note: "The rate shown is our sell rate.",
+    rate_sell_label: "Sell Rate",
+    rate_buy_label: "Buy Rate",
+    rate_sell_note: "The sell rate is used for transfers to Libya; the buy rate is used for reverse conversion.",
     last_updated: "Last updated",
     calc_title: "Calculate the Amount to Withdraw",
     calc_amount_label_to: "Amount to withdraw",
@@ -114,6 +118,14 @@ function applyLang(lang) {
   });
   renderDirectionToggle();
   renderRates();
+
+  const emptyEl = document.getElementById("chart-empty");
+  if (!emptyEl.classList.contains("hidden")) emptyEl.textContent = t.history_empty;
+  if (chartInstance) {
+    chartInstance.data.datasets[0].label = t.rate_sell_label;
+    chartInstance.data.datasets[1].label = t.rate_buy_label;
+    chartInstance.update();
+  }
 }
 
 function formatNumber(n, maxDigits = 2) {
@@ -180,7 +192,10 @@ function renderRates() {
   const rate = getSelectedRate();
 
   document.getElementById("rate-currency-label").textContent = `${selectedCurrency} ${t.rate_to_lyd}`;
-  document.getElementById("main-rate-value").textContent = rate ? formatNumber(rate.rateToLYD) : "-";
+  document.getElementById("sell-rate-label").textContent = t.rate_sell_label;
+  document.getElementById("buy-rate-label").textContent = t.rate_buy_label;
+  document.getElementById("sell-rate-value").textContent = rate ? formatNumber(rate.sellRate) : "-";
+  document.getElementById("buy-rate-value").textContent = rate ? formatNumber(rate.buyRate) : "-";
   document.getElementById("rate-updated-value").textContent = rate ? formatTimestamp(rate.updatedAt) : "-";
 
   runCalculator();
@@ -189,7 +204,6 @@ function renderRates() {
 function runCalculator() {
   const t = I18N[getLang()];
   const rate = getSelectedRate();
-  const rateValue = rate ? Number(rate.rateToLYD) : 0;
   const input = document.getElementById("calc-amount-input");
   const amount = parseFloat(input.value) || 0;
 
@@ -204,7 +218,8 @@ function runCalculator() {
     forwardEl.classList.remove("hidden");
     reverseEl.classList.add("hidden");
 
-    const total = amount * rateValue;
+    const sellRate = rate ? Number(rate.sellRate) : 0;
+    const total = amount * sellRate;
     const feeLYD = total * 0.02;
     const feeCur = amount * 0.02;
     const netLYD = total * 0.98;
@@ -216,7 +231,8 @@ function runCalculator() {
     forwardEl.classList.add("hidden");
     reverseEl.classList.remove("hidden");
 
-    const result = rateValue > 0 ? amount / rateValue : 0;
+    const buyRate = rate ? Number(rate.buyRate) : 0;
+    const result = buyRate > 0 ? amount / buyRate : 0;
     document.getElementById("result-reverse").textContent = `${formatNumber(result)} ${selectedCurrency}`;
   }
 }
@@ -241,7 +257,7 @@ function subscribeHistory() {
         const points = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
-          points.push({ x: formatTimestamp(data.updatedAt), y: data.rateToLYD });
+          points.push({ x: formatTimestamp(data.updatedAt), sell: data.sellRate, buy: data.buyRate });
         });
         renderChart(points);
       },
@@ -274,10 +290,19 @@ function renderChart(points) {
       labels: points.map((p) => p.x),
       datasets: [
         {
-          label: selectedCurrency + " -> LYD",
-          data: points.map((p) => p.y),
+          label: t.rate_sell_label,
+          data: points.map((p) => p.sell),
           borderColor: "#0b3d5c",
           backgroundColor: "rgba(11, 61, 92, 0.08)",
+          tension: 0.25,
+          fill: true,
+          pointRadius: 3
+        },
+        {
+          label: t.rate_buy_label,
+          data: points.map((p) => p.buy),
+          borderColor: "#14a76c",
+          backgroundColor: "rgba(20, 167, 108, 0.08)",
           tension: 0.25,
           fill: true,
           pointRadius: 3
@@ -286,7 +311,7 @@ function renderChart(points) {
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: true } },
       scales: {
         y: { beginAtZero: false }
       }
