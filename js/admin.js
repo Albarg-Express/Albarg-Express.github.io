@@ -93,7 +93,7 @@ function formatTimestamp(ts) {
   if (typeof ts.toDate === "function") date = ts.toDate();
   else date = new Date(ts);
   if (isNaN(date.getTime())) return "-";
-  return date.toLocaleString();
+  return date.toLocaleString(undefined, { timeZone: "Africa/Tripoli" });
 }
 
 function renderTable(rates) {
