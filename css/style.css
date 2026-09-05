@@ -4,16 +4,53 @@
   --green: #14a76c;
   --green-dark: #0e8455;
   --white: #ffffff;
+  --pure-white: #ffffff;
   --off-white: #f5f8fa;
   --gray-100: #eef1f4;
   --gray-300: #d5dde3;
   --gray-500: #7c8a97;
   --gray-700: #3d4b57;
   --text: #1c2b36;
+  --heading: #082b40;
   --danger: #c0392b;
   --radius: 12px;
   --shadow: 0 4px 16px rgba(11, 61, 92, 0.08);
   --shadow-lg: 0 12px 32px rgba(11, 61, 92, 0.14);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --white: #182430;
+    --off-white: #0e161d;
+    --gray-100: #202f3b;
+    --gray-300: #334656;
+    --gray-500: #93a1ac;
+    --gray-700: #cfd8de;
+    --text: #eef3f6;
+    --heading: #f1f6f9;
+    --green-dark: #22c07f;
+    --danger: #ff6a5a;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --white: #182430;
+  --off-white: #0e161d;
+  --gray-100: #202f3b;
+  --gray-300: #334656;
+  --gray-500: #93a1ac;
+  --gray-700: #cfd8de;
+  --text: #eef3f6;
+  --heading: #f1f6f9;
+  --green-dark: #22c07f;
+  --danger: #ff6a5a;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -66,7 +103,7 @@ header.site-header {
   gap: 10px;
   font-weight: 800;
   font-size: 1.15rem;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
 }
 
 .brand img {
@@ -76,7 +113,14 @@ header.site-header {
   border-radius: 8px;
 }
 
-.lang-toggle {
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.seg-toggle {
   display: flex;
   gap: 6px;
   background: var(--gray-100);
@@ -84,7 +128,7 @@ header.site-header {
   padding: 4px;
 }
 
-.lang-toggle button {
+.seg-toggle button {
   border: none;
   background: transparent;
   padding: 8px 14px;
@@ -96,15 +140,15 @@ header.site-header {
   transition: background 0.15s, color 0.15s;
 }
 
-.lang-toggle button.active {
+.seg-toggle button.active {
   background: var(--deep-blue);
-  color: var(--white);
+  color: var(--pure-white);
 }
 
 /* Hero */
 .hero {
   background: linear-gradient(135deg, var(--deep-blue) 0%, var(--deep-blue-dark) 100%);
-  color: var(--white);
+  color: var(--pure-white);
   padding: 56px 0 72px;
 }
 
@@ -140,7 +184,7 @@ section {
 .section-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
   margin: 0 0 6px;
 }
 
@@ -194,7 +238,7 @@ section {
 
 .rate-badge {
   background: var(--gray-100);
-  color: var(--deep-blue-dark);
+  color: var(--heading);
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.8rem;
@@ -223,7 +267,7 @@ table.rates-table th {
 
 table.rates-table td.rate-value {
   font-weight: 700;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
 }
 
 /* Calculator */
@@ -245,7 +289,7 @@ table.rates-table td.rate-value {
   display: block;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
 }
 
 .calc-input .input-wrap {
@@ -311,7 +355,7 @@ table.rates-table td.rate-value {
 .result-row .r-value {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
   min-width: 0;
 }
 
@@ -352,7 +396,7 @@ table.rates-table td.rate-value {
   height: 36px;
   border-radius: 50%;
   background: var(--deep-blue);
-  color: var(--white);
+  color: var(--pure-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,7 +406,7 @@ table.rates-table td.rate-value {
 
 .step h3 {
   margin: 0 0 8px;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
 }
 
 .step p {
@@ -381,7 +425,12 @@ table.rates-table td.rate-value {
   border: 1px solid var(--gray-300);
   border-radius: 8px;
   padding: 6px;
-  background: var(--white);
+  background: var(--pure-white);
+}
+
+.qr-download {
+  margin-top: 12px;
+  text-decoration: none;
 }
 
 .rate-dual {
@@ -400,7 +449,7 @@ table.rates-table td.rate-value {
 /* Contact */
 .contact-card {
   background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
-  color: var(--white);
+  color: var(--pure-white);
   border-radius: var(--radius);
   padding: 32px;
   display: grid;
@@ -437,7 +486,7 @@ table.rates-table td.rate-value {
 .pill-toggle button.active {
   background: var(--deep-blue);
   border-color: var(--deep-blue);
-  color: var(--white);
+  color: var(--pure-white);
 }
 
 .rate-updated {
@@ -546,7 +595,7 @@ footer .contact-item:hover {
 
 .admin-header h1 {
   font-size: 1.4rem;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
   margin: 0;
 }
 
@@ -572,7 +621,7 @@ footer .contact-item:hover {
 
 .admin-card h2 {
   font-size: 1.1rem;
-  color: var(--deep-blue-dark);
+  color: var(--heading);
   margin-top: 0;
 }
 
@@ -619,11 +668,11 @@ table.admin-table input {
   cursor: pointer;
 }
 
-.btn-primary { background: var(--deep-blue); color: var(--white); }
+.btn-primary { background: var(--deep-blue); color: var(--pure-white); }
 .btn-primary:hover { background: var(--deep-blue-dark); }
-.btn-success { background: var(--green); color: var(--white); }
+.btn-success { background: var(--green); color: var(--pure-white); }
 .btn-success:hover { background: var(--green-dark); }
-.btn-danger { background: var(--danger); color: var(--white); }
+.btn-danger { background: var(--danger); color: var(--pure-white); }
 .btn-danger:hover { background: #a53225; }
 .btn-sm { padding: 6px 10px; font-size: 0.78rem; }
 

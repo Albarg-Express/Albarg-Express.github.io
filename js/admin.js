@@ -207,11 +207,37 @@ function ensureSeedCurrencies() {
   });
 }
 
+function currentTheme() {
+  const stored = localStorage.getItem("albarg_theme");
+  if (stored) return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function syncThemeButtons() {
+  const active = currentTheme();
+  document.querySelectorAll(".theme-toggle button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.theme === active);
+  });
+}
+
+function setTheme(theme) {
+  localStorage.setItem("albarg_theme", theme);
+  document.documentElement.setAttribute("data-theme", theme);
+  syncThemeButtons();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("year").textContent = new Date().getFullYear();
   applyAdminLang(getAdminLang());
   document.querySelectorAll(".lang-toggle button").forEach((btn) => {
     btn.addEventListener("click", () => setAdminLang(btn.dataset.lang));
+  });
+  document.querySelectorAll(".theme-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.theme));
+  });
+  syncThemeButtons();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (!localStorage.getItem("albarg_theme")) syncThemeButtons();
   });
 
   if (!initFirebase()) return;

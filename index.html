@@ -7,8 +7,14 @@
 <meta name="description" content="حوّل أموالك من Binance إلى ليبيا بدينار ليبي بشفافية كاملة في الرسوم.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="css/style.css">
+<script>
+  (function () {
+    var t = localStorage.getItem("albarg_theme");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
@@ -18,9 +24,15 @@
       <img src="assets/logo.png" alt="ALBARG Express logo">
       <span>ALBARG Express</span>
     </div>
-    <div class="lang-toggle">
-      <button type="button" data-lang="ar">عربي</button>
-      <button type="button" data-lang="en">EN</button>
+    <div class="header-controls">
+      <div class="lang-toggle seg-toggle">
+        <button type="button" data-lang="ar">عربي</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <div class="theme-toggle seg-toggle">
+        <button type="button" data-theme="light" aria-label="Light mode">☀️</button>
+        <button type="button" data-theme="dark" aria-label="Dark mode">🌙</button>
+      </div>
     </div>
   </div>
 </header>
@@ -51,7 +63,6 @@
       </div>
       <span class="rate-badge" data-i18n="rate_title">سعر الصرف اليوم</span>
     </div>
-    <p class="section-sub" style="margin:0;" data-i18n="rate_sell_note">سعر البيع يُستخدم عند تحويل الأموال إلى ليبيا، وسعر الشراء يُستخدم عند التحويل العكسي.</p>
   </div>
 </div>
 
@@ -119,6 +130,7 @@
         <h3 data-i18n="step1_title">أرسل المبلغ عبر Binance</h3>
         <p data-i18n="step1_body">أرسل المبلغ المراد سحبه إلى حسابنا على Binance باستخدام عملة USDT.</p>
         <img src="assets/qr.jpeg" alt="Binance QR code" class="step-qr">
+        <a class="btn btn-primary qr-download" href="assets/qr.jpeg" download="ALBARG-Binance-QR.jpeg" data-i18n="qr_download">تحميل الصورة</a>
       </div>
       <div class="step">
         <div class="step-num">2</div>
@@ -145,7 +157,7 @@
 
 <footer>
   <div class="container">
-    <h2 class="section-title" style="color:var(--white);" data-i18n="contact_title">تواصل معنا للبدء</h2>
+    <h2 class="section-title" style="color:var(--pure-white);" data-i18n="contact_title">تواصل معنا للبدء</h2>
     <p class="section-sub" style="color:rgba(255,255,255,0.75);" data-i18n="contact_sub">تواصل معنا عبر أي من القنوات التالية لبدء عملية التحويل.</p>
     <div class="contact-card">
       <a class="contact-item" href="tel:+218925088566">

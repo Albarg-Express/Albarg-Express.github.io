@@ -20,7 +20,6 @@ const I18N = {
     rate_to_lyd: "إلى الدينار الليبي",
     rate_sell_label: "سعر البيع",
     rate_buy_label: "سعر الشراء",
-    rate_sell_note: "سعر البيع يُستخدم عند تحويل الأموال إلى ليبيا، وسعر الشراء يُستخدم عند التحويل العكسي.",
     last_updated: "آخر تحديث",
     calc_title: "احسب المبلغ المراد سحبه",
     calc_amount_label_to: "المبلغ المراد سحبه",
@@ -37,6 +36,7 @@ const I18N = {
     how_sub: "ثلاث خطوات بسيطة وشفافة لإتمام تحويلك.",
     step1_title: "أرسل المبلغ عبر Binance",
     step1_body: "أرسل المبلغ المراد سحبه إلى حسابنا على Binance باستخدام عملة USDT.",
+    qr_download: "تحميل الصورة",
     step2_title: "اسم ورقم هاتف المستلم",
     step2_body: "زوّدنا باسم المستلم ورقم هاتفه.",
     step3_title: "توصيل سريع",
@@ -61,7 +61,6 @@ const I18N = {
     rate_to_lyd: "to Libyan Dinar",
     rate_sell_label: "Sell Rate",
     rate_buy_label: "Buy Rate",
-    rate_sell_note: "The sell rate is used for transfers to Libya; the buy rate is used for reverse conversion.",
     last_updated: "Last updated",
     calc_title: "Calculate the Amount to Withdraw",
     calc_amount_label_to: "Amount to withdraw",
@@ -78,6 +77,7 @@ const I18N = {
     how_sub: "Three simple, transparent steps to complete your transfer.",
     step1_title: "Send the Amount via Binance",
     step1_body: "Send the amount you want to withdraw to our Binance account using USDT.",
+    qr_download: "Download Image",
     step2_title: "Recipient's Name & Phone Number",
     step2_body: "Give us the recipient's name and phone number.",
     step3_title: "Fast Delivery",
@@ -348,10 +348,36 @@ function loadFirebase() {
   }
 }
 
+function currentTheme() {
+  const stored = localStorage.getItem("albarg_theme");
+  if (stored) return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function syncThemeButtons() {
+  const active = currentTheme();
+  document.querySelectorAll(".theme-toggle button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.theme === active);
+  });
+}
+
+function setTheme(theme) {
+  localStorage.setItem("albarg_theme", theme);
+  document.documentElement.setAttribute("data-theme", theme);
+  syncThemeButtons();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   applyLang(getLang());
   document.querySelectorAll(".lang-toggle button").forEach((btn) => {
     btn.addEventListener("click", () => setLang(btn.dataset.lang));
+  });
+  document.querySelectorAll(".theme-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.theme));
+  });
+  syncThemeButtons();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (!localStorage.getItem("albarg_theme")) syncThemeButtons();
   });
   document.getElementById("calc-amount-input").addEventListener("input", runCalculator);
   document.getElementById("year").textContent = new Date().getFullYear();

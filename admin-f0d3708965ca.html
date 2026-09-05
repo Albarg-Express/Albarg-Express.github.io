@@ -7,8 +7,14 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="css/style.css">
+<script>
+  (function () {
+    var t = localStorage.getItem("albarg_theme");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </head>
 <body>
 
@@ -16,9 +22,15 @@
   <div class="admin-header">
     <img src="assets/logo.png" alt="ALBARG Express logo">
     <h1 data-i18n="admin_title">ALBARG Express — Rate Admin</h1>
-    <div class="lang-toggle" style="margin-inline-start:auto;">
-      <button type="button" data-lang="ar">عربي</button>
-      <button type="button" data-lang="en">EN</button>
+    <div class="header-controls" style="margin-inline-start:auto;">
+      <div class="lang-toggle seg-toggle">
+        <button type="button" data-lang="ar">عربي</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <div class="theme-toggle seg-toggle">
+        <button type="button" data-theme="light" aria-label="Light mode">☀️</button>
+        <button type="button" data-theme="dark" aria-label="Dark mode">🌙</button>
+      </div>
     </div>
   </div>
 
