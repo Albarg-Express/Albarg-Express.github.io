@@ -4,6 +4,11 @@ const FALLBACK_RATES = [
   { code: "EUR", name: "Euro", sellRate: 11, buyRate: 10.8, updatedAt: null }
 ];
 
+const CURRENCY_SYMBOLS = { USD: "$", EUR: "€", GBP: "£" };
+function currencySymbol(code) {
+  return CURRENCY_SYMBOLS[code] || code;
+}
+
 let currentRates = FALLBACK_RATES.slice();
 let selectedCurrency = "USD";
 let direction = "toLYD"; // "toLYD" or "fromLYD"
@@ -153,7 +158,7 @@ function renderCurrencyToggle() {
   codes.forEach((code) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.textContent = code;
+    btn.textContent = `${currencySymbol(code)} ${code}`;
     btn.className = selectedCurrency === code ? "active" : "";
     btn.addEventListener("click", () => {
       selectedCurrency = code;
@@ -207,7 +212,8 @@ function runCalculator() {
   const input = document.getElementById("calc-amount-input");
   const amount = parseFloat(input.value) || 0;
 
-  document.getElementById("calc-amount-currency").textContent = direction === "toLYD" ? selectedCurrency : "LYD";
+  document.getElementById("calc-amount-currency").textContent =
+    direction === "toLYD" ? currencySymbol(selectedCurrency) : "LYD";
   document.getElementById("calc-amount-label-text").textContent =
     direction === "toLYD" ? t.calc_amount_label_to : t.calc_amount_label_from;
 
