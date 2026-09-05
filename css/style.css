@@ -480,9 +480,34 @@ table.rates-table td.rate-value {
 footer {
   background: var(--deep-blue-dark);
   color: rgba(255,255,255,0.7);
-  padding: 28px 0;
-  text-align: center;
+  padding: 48px 0 28px;
   font-size: 0.85rem;
+}
+
+footer .section-title,
+footer .section-sub {
+  text-align: start;
+}
+
+footer .contact-card {
+  margin: 20px 0 28px;
+}
+
+footer .contact-item {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: background 0.15s;
+}
+
+footer .contact-item:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.footer-copy {
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 20px;
 }
 
 /* Admin page */
