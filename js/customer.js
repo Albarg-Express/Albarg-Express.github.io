@@ -1,91 +1,92 @@
 // Fallback data shown before Firestore loads or if it fails.
 const FALLBACK_RATES = [
-  { code: "USD", name: "US Dollar", rateToLYD: 10, updatedAt: null }
+  { code: "USD", name: "US Dollar", rateToLYD: 10, updatedAt: null },
+  { code: "EUR", name: "Euro", rateToLYD: 11, updatedAt: null }
 ];
 
 let currentRates = FALLBACK_RATES.slice();
+let selectedCurrency = "USD";
+let direction = "toLYD"; // "toLYD" or "fromLYD"
 let db = null;
+let historyUnsub = null;
+let chartInstance = null;
 
 const I18N = {
   ar: {
     dir: "rtl",
     lang: "ar",
-    nav_home: "الرئيسية",
-    hero_title: "شركتك الموثوقة للدفع الإلكتروني والخدمات الرقمية",
-    hero_sub: "نقدم حلول الدفع الإلكتروني، خدمات البطاقات الرقمية، دفع الفواتير، وشحن الألعاب والتطبيقات.",
-    hero_service: "خدمتنا الحالية: تحويل الأموال من Binance إلى ليبيا بدينار ليبي، بشفافية كاملة في الرسوم.",
+    hero_service: "نحوّل أموالك من Binance إلى ليبيا بدينار ليبي، بشفافية كاملة في الرسوم.",
     rate_title: "سعر الصرف اليوم",
-    rate_sub: "الأسعار محدّثة مباشرة من قبل الإدارة، وتُعرض هنا فور تعديلها.",
-    rate_label: "دولار أمريكي إلى دينار ليبي",
-    rate_per_usd: "لكل 1 دولار",
-    other_currencies: "عملات أخرى",
-    th_code: "الرمز",
-    th_name: "العملة",
-    th_rate: "السعر مقابل الدينار الليبي",
+    rate_to_lyd: "إلى الدينار الليبي",
+    rate_sell_note: "السعر الموضح هو سعر البيع.",
+    last_updated: "آخر تحديث",
     calc_title: "احسب تحويلك",
-    calc_sub: "أدخل المبلغ بالدولار وشاهد النتيجة فوراً، بما في ذلك رسومنا الشفافة بنسبة 2%.",
-    calc_input_label: "المبلغ المرسل (دولار أمريكي)",
+    calc_amount_label_to: "المبلغ المراد سحبه",
+    calc_amount_label_from: "المبلغ بالدينار الليبي",
+    dir_to_lyd: "إلى دينار ليبي",
+    dir_from_lyd: "من دينار ليبي",
     r_total: "الإجمالي بالدينار الليبي",
     r_fee: "رسوم الخدمة (2%)",
-    r_recipient: "المبلغ الذي يستلمه المستفيد في ليبيا (98%)",
+    r_recipient: "المبلغ الذي يستلمه المستفيد بعد خصم الرسوم",
+    r_reverse: "المبلغ المكافئ",
+    history_title: "سجل الأسعار",
+    history_empty: "لا يوجد سجل أسعار بعد لهذه العملة.",
     how_title: "كيف تعمل الخدمة",
     how_sub: "ثلاث خطوات بسيطة وشفافة لإتمام تحويلك.",
     step1_title: "أرسل الدولار عبر Binance",
     step1_body: "أرسل المبلغ المطلوب بالدولار إلى حساب Binance الخاص بنا.",
-    step2_title: "أخبرنا بمن سيستلم المبلغ",
-    step2_body: "زوّدنا باسم وبيانات المستلم في ليبيا.",
-    step3_title: "نحوّل ونسلّم فوراً",
-    step3_body: "نحوّل المبلغ حسب سعر اليوم ونسلّم 98% للمستفيد، مع احتفاظنا بـ 2% رسوم شفافة.",
+    step2_title: "اسم ورقم هاتف المستلم",
+    step2_body: "زوّدنا باسم المستلم ورقم هاتفه.",
+    step3_title: "توصيل سريع",
+    step3_body: "نوصل المبلغ إلى المستلم في ليبيا بسرعة.",
     contact_title: "تواصل معنا للبدء",
     contact_sub: "تواصل معنا عبر أي من القنوات التالية لبدء عملية التحويل.",
+    contact_call: "اتصال",
     contact_whatsapp: "واتساب",
     contact_telegram: "تيليجرام",
     contact_email: "البريد الإلكتروني",
     placeholder_value: "سيتم إضافته لاحقاً",
     about_title: "من نحن",
     about_body: "نحن شركة متخصصة في حلول الدفع الإلكتروني والخدمات الرقمية، نعمل على تقديم خدمات الدفع الإلكتروني، البطاقات الرقمية، دفع الفواتير، وشحن الألعاب والتطبيقات. المزيد من الخدمات قادمة قريباً.",
-    footer_text: "جميع الحقوق محفوظة",
-    last_updated: "آخر تحديث"
+    footer_text: "جميع الحقوق محفوظة"
   },
   en: {
     dir: "ltr",
     lang: "en",
-    nav_home: "Home",
-    hero_title: "Your Trusted Partner for Digital Payments",
-    hero_sub: "We provide electronic payment solutions, digital card services, bill payments, and game/app top-ups.",
-    hero_service: "Our current service: transferring money from Binance to Libya in Libyan Dinar, with full fee transparency.",
+    hero_service: "We transfer your money from Binance to Libya in Libyan Dinar, with full fee transparency.",
     rate_title: "Today's Exchange Rate",
-    rate_sub: "Rates are updated live by our team and shown here the moment they change.",
-    rate_label: "US Dollar to Libyan Dinar",
-    rate_per_usd: "per 1 USD",
-    other_currencies: "Other Currencies",
-    th_code: "Code",
-    th_name: "Currency",
-    th_rate: "Rate to LYD",
+    rate_to_lyd: "to Libyan Dinar",
+    rate_sell_note: "The rate shown is our sell rate.",
+    last_updated: "Last updated",
     calc_title: "Calculate Your Transfer",
-    calc_sub: "Enter a USD amount and see the result instantly, including our transparent 2% fee.",
-    calc_input_label: "Amount to send (USD)",
+    calc_amount_label_to: "Amount to withdraw",
+    calc_amount_label_from: "Amount in LYD",
+    dir_to_lyd: "To LYD",
+    dir_from_lyd: "From LYD",
     r_total: "Total in LYD",
     r_fee: "Service fee (2%)",
-    r_recipient: "Recipient receives in Libya (98%)",
+    r_recipient: "Amount recipient receives after fees",
+    r_reverse: "Equivalent amount",
+    history_title: "Rate History",
+    history_empty: "No rate history yet for this currency.",
     how_title: "How It Works",
     how_sub: "Three simple, transparent steps to complete your transfer.",
     step1_title: "Send USD via Binance",
     step1_body: "Send the desired USD amount to our Binance account.",
-    step2_title: "Tell us the recipient",
-    step2_body: "Give us the recipient's name and details in Libya.",
-    step3_title: "We convert and deliver",
-    step3_body: "We convert at today's rate and deliver 98% to the recipient, keeping a transparent 2% fee.",
+    step2_title: "Recipient's Name & Phone Number",
+    step2_body: "Give us the recipient's name and phone number.",
+    step3_title: "Fast Delivery",
+    step3_body: "We deliver the money directly to the recipient in Libya, fast.",
     contact_title: "Contact Us to Start",
     contact_sub: "Reach out through any of the channels below to begin your transfer.",
+    contact_call: "Call",
     contact_whatsapp: "WhatsApp",
     contact_telegram: "Telegram",
     contact_email: "Email",
     placeholder_value: "To be added",
     about_title: "About Us",
     about_body: "We are a company specialized in digital payment solutions and electronic services, offering electronic payments, digital card services, bill payments, and game/app top-ups. More services are coming soon.",
-    footer_text: "All rights reserved",
-    last_updated: "Last updated"
+    footer_text: "All rights reserved"
   }
 };
 
@@ -109,6 +110,7 @@ function applyLang(lang) {
   document.querySelectorAll(".lang-toggle button").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.lang === lang);
   });
+  renderDirectionToggle();
   renderRates();
 }
 
@@ -116,50 +118,185 @@ function formatNumber(n, maxDigits = 2) {
   return Number(n).toLocaleString(undefined, { maximumFractionDigits: maxDigits, minimumFractionDigits: 0 });
 }
 
-function renderRates() {
-  const lang = getLang();
-  const t = I18N[lang];
-  const usd = currentRates.find((r) => r.code === "USD");
-  const mainValueEl = document.getElementById("main-rate-value");
-  if (usd) {
-    mainValueEl.innerHTML = `${formatNumber(usd.rateToLYD)} <small>${t.rate_per_usd}</small>`;
-  }
+function formatTimestamp(ts) {
+  if (!ts) return "-";
+  let date;
+  if (typeof ts.toDate === "function") date = ts.toDate();
+  else date = new Date(ts);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleString();
+}
 
-  const tbody = document.getElementById("rates-table-body");
-  tbody.innerHTML = "";
-  const others = currentRates.filter((r) => r.code !== "USD");
-  if (others.length === 0) {
-    document.getElementById("other-rates-wrap").classList.add("hidden");
-  } else {
-    document.getElementById("other-rates-wrap").classList.remove("hidden");
-    others.forEach((r) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${r.code}</td><td>${r.name || ""}</td><td class="rate-value">${formatNumber(r.rateToLYD)}</td>`;
-      tbody.appendChild(tr);
+function getSelectedRate() {
+  return currentRates.find((r) => r.code === selectedCurrency) || currentRates[0];
+}
+
+function renderCurrencyToggle() {
+  const wrap = document.getElementById("currency-toggle");
+  wrap.innerHTML = "";
+  const codes = currentRates.map((r) => r.code);
+  if (!codes.includes(selectedCurrency)) selectedCurrency = codes[0];
+  codes.forEach((code) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = code;
+    btn.className = selectedCurrency === code ? "active" : "";
+    btn.addEventListener("click", () => {
+      selectedCurrency = code;
+      renderRates();
+      subscribeHistory();
     });
-  }
+    wrap.appendChild(btn);
+  });
+}
+
+function renderDirectionToggle() {
+  const t = I18N[getLang()];
+  const wrap = document.getElementById("direction-toggle");
+  wrap.innerHTML = "";
+  const options = [
+    { key: "toLYD", label: t.dir_to_lyd },
+    { key: "fromLYD", label: t.dir_from_lyd }
+  ];
+  options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = opt.label;
+    btn.className = direction === opt.key ? "active" : "";
+    btn.addEventListener("click", () => {
+      direction = opt.key;
+      renderDirectionToggle();
+      runCalculator();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function renderRates() {
+  const t = I18N[getLang()];
+  renderCurrencyToggle();
+  const rate = getSelectedRate();
+
+  document.getElementById("rate-currency-label").textContent = `${selectedCurrency} ${t.rate_to_lyd}`;
+  document.getElementById("main-rate-value").textContent = rate ? formatNumber(rate.rateToLYD) : "-";
+  document.getElementById("rate-updated-value").textContent = rate ? formatTimestamp(rate.updatedAt) : "-";
 
   runCalculator();
 }
 
 function runCalculator() {
-  const usd = currentRates.find((r) => r.code === "USD");
-  const rate = usd ? Number(usd.rateToLYD) : 0;
-  const input = document.getElementById("calc-usd-input");
+  const t = I18N[getLang()];
+  const rate = getSelectedRate();
+  const rateValue = rate ? Number(rate.rateToLYD) : 0;
+  const input = document.getElementById("calc-amount-input");
   const amount = parseFloat(input.value) || 0;
 
-  const total = amount * rate;
-  const feeLYD = total * 0.02;
-  const feeUSD = amount * 0.02;
-  const recipientLYD = total * 0.98;
+  document.getElementById("calc-amount-currency").textContent = direction === "toLYD" ? selectedCurrency : "LYD";
+  document.getElementById("calc-amount-label-text").textContent =
+    direction === "toLYD" ? t.calc_amount_label_to : t.calc_amount_label_from;
 
-  document.getElementById("result-total").textContent = formatNumber(total) + " LYD";
-  document.getElementById("result-fee").textContent = `${formatNumber(feeLYD)} LYD (${formatNumber(feeUSD)} USD)`;
-  document.getElementById("result-recipient").textContent = formatNumber(recipientLYD) + " LYD";
+  const forwardEl = document.getElementById("forward-results");
+  const reverseEl = document.getElementById("reverse-results");
+
+  if (direction === "toLYD") {
+    forwardEl.classList.remove("hidden");
+    reverseEl.classList.add("hidden");
+
+    const total = amount * rateValue;
+    const feeLYD = total * 0.02;
+    const feeCur = amount * 0.02;
+    const netLYD = total * 0.98;
+
+    document.getElementById("result-total").textContent = formatNumber(total) + " LYD";
+    document.getElementById("result-fee").textContent = `${formatNumber(feeLYD)} LYD (${formatNumber(feeCur)} ${selectedCurrency})`;
+    document.getElementById("result-recipient").textContent = formatNumber(netLYD) + " LYD";
+  } else {
+    forwardEl.classList.add("hidden");
+    reverseEl.classList.remove("hidden");
+
+    const result = rateValue > 0 ? amount / rateValue : 0;
+    document.getElementById("result-reverse").textContent = `${formatNumber(result)} ${selectedCurrency}`;
+  }
+}
+
+function subscribeHistory() {
+  if (!db) return renderChartEmpty();
+  if (historyUnsub) {
+    historyUnsub();
+    historyUnsub = null;
+  }
+  const t = I18N[getLang()];
+  document.getElementById("history-currency-label").textContent = selectedCurrency;
+
+  historyUnsub = db
+    .collection(window.RATES_COLLECTION)
+    .doc(selectedCurrency)
+    .collection("history")
+    .orderBy("updatedAt", "asc")
+    .limitToLast(50)
+    .onSnapshot(
+      (snapshot) => {
+        const points = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          points.push({ x: formatTimestamp(data.updatedAt), y: data.rateToLYD });
+        });
+        renderChart(points);
+      },
+      () => renderChartEmpty()
+    );
+}
+
+function renderChartEmpty() {
+  const t = I18N[getLang()];
+  document.getElementById("chart-canvas-wrap").classList.add("hidden");
+  const emptyEl = document.getElementById("chart-empty");
+  emptyEl.textContent = t.history_empty;
+  emptyEl.classList.remove("hidden");
+}
+
+function renderChart(points) {
+  const t = I18N[getLang()];
+  if (!window.Chart || points.length === 0) {
+    renderChartEmpty();
+    return;
+  }
+  document.getElementById("chart-canvas-wrap").classList.remove("hidden");
+  document.getElementById("chart-empty").classList.add("hidden");
+
+  const ctx = document.getElementById("history-chart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: points.map((p) => p.x),
+      datasets: [
+        {
+          label: selectedCurrency + " -> LYD",
+          data: points.map((p) => p.y),
+          borderColor: "#0b3d5c",
+          backgroundColor: "rgba(11, 61, 92, 0.08)",
+          tension: 0.25,
+          fill: true,
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: false }
+      }
+    }
+  });
 }
 
 function loadFirebase() {
-  if (!window.firebase || !window.FIREBASE_CONFIG) return;
+  if (!window.firebase || !window.FIREBASE_CONFIG) {
+    subscribeHistory();
+    return;
+  }
   try {
     if (!firebase.apps.length) {
       firebase.initializeApp(window.FIREBASE_CONFIG);
@@ -173,6 +310,7 @@ function loadFirebase() {
         rates.sort((a, b) => (a.code === "USD" ? -1 : b.code === "USD" ? 1 : a.code.localeCompare(b.code)));
         currentRates = rates;
         renderRates();
+        subscribeHistory();
       },
       (err) => {
         console.warn("Firestore read failed, using fallback rates.", err);
@@ -188,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".lang-toggle button").forEach((btn) => {
     btn.addEventListener("click", () => setLang(btn.dataset.lang));
   });
-  document.getElementById("calc-usd-input").addEventListener("input", runCalculator);
+  document.getElementById("calc-amount-input").addEventListener("input", runCalculator);
   document.getElementById("year").textContent = new Date().getFullYear();
   loadFirebase();
 });

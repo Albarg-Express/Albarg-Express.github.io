@@ -1,4 +1,69 @@
 let db = null;
+let latestRates = [];
+
+const ADMIN_I18N = {
+  ar: {
+    dir: "rtl",
+    lang: "ar",
+    admin_title: "ALBARG Express — إدارة الأسعار",
+    current_title: "العملات الحالية",
+    th_code: "الرمز",
+    th_name: "الاسم",
+    th_rate: "السعر مقابل الدينار الليبي",
+    th_updated: "آخر تحديث",
+    th_actions: "إجراءات",
+    add_title: "إضافة عملة",
+    lbl_code: "الرمز",
+    lbl_name: "الاسم",
+    lbl_rate: "السعر مقابل الدينار الليبي",
+    btn_add: "إضافة عملة",
+    btn_save: "حفظ",
+    btn_delete: "حذف",
+    admin_footer: "إدارة"
+  },
+  en: {
+    dir: "ltr",
+    lang: "en",
+    admin_title: "ALBARG Express — Rate Admin",
+    current_title: "Current Currencies",
+    th_code: "Code",
+    th_name: "Name",
+    th_rate: "Rate to LYD",
+    th_updated: "Last Updated",
+    th_actions: "Actions",
+    add_title: "Add Currency",
+    lbl_code: "Code",
+    lbl_name: "Name",
+    lbl_rate: "Rate to LYD",
+    btn_add: "Add Currency",
+    btn_save: "Save",
+    btn_delete: "Delete",
+    admin_footer: "Admin"
+  }
+};
+
+function getAdminLang() {
+  return localStorage.getItem("albarg_lang") || "ar";
+}
+
+function setAdminLang(lang) {
+  localStorage.setItem("albarg_lang", lang);
+  applyAdminLang(lang);
+}
+
+function applyAdminLang(lang) {
+  const t = ADMIN_I18N[lang];
+  document.documentElement.setAttribute("lang", t.lang);
+  document.documentElement.setAttribute("dir", t.dir);
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
+  renderTable(latestRates);
+}
 
 function initFirebase() {
   if (!window.firebase || !window.FIREBASE_CONFIG) {
@@ -32,9 +97,11 @@ function formatTimestamp(ts) {
 }
 
 function renderTable(rates) {
+  const t = ADMIN_I18N[getAdminLang()];
   const tbody = document.getElementById("admin-table-body");
   tbody.innerHTML = "";
   rates
+    .slice()
     .sort((a, b) => (a.code === "USD" ? -1 : b.code === "USD" ? 1 : a.code.localeCompare(b.code)))
     .forEach((r) => {
       const tr = document.createElement("tr");
@@ -45,8 +112,8 @@ function renderTable(rates) {
         <td><input type="number" step="any" value="${r.rateToLYD}" data-field="rateToLYD" data-id="${r.id}"></td>
         <td class="timestamp">${formatTimestamp(r.updatedAt)}</td>
         <td>
-          <button class="btn btn-success btn-sm" data-action="save" data-id="${r.id}">Save</button>
-          ${isUSD ? "" : `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${r.id}">Delete</button>`}
+          <button class="btn btn-success btn-sm" data-action="save" data-id="${r.id}">${t.btn_save}</button>
+          ${isUSD ? "" : `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${r.id}">${t.btn_delete}</button>`}
         </td>`;
       tbody.appendChild(tr);
     });
@@ -68,10 +135,14 @@ function saveCurrency(id) {
     showStatus("Rate must be a positive number.", true);
     return;
   }
+  const now = firebase.firestore.FieldValue.serverTimestamp();
   db.collection(window.RATES_COLLECTION)
     .doc(id)
-    .set({ code: id, name, rateToLYD: rate, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
-    .then(() => showStatus(`${id} updated.`, false))
+    .set({ code: id, name, rateToLYD: rate, updatedAt: now }, { merge: true })
+    .then(() => {
+      db.collection(window.RATES_COLLECTION).doc(id).collection("history").add({ rateToLYD: rate, updatedAt: now });
+      showStatus(`${id} updated.`, false);
+    })
     .catch((err) => showStatus("Save failed: " + err.message, true));
 }
 
@@ -99,47 +170,51 @@ function addCurrency(e) {
     return;
   }
 
+  const now = firebase.firestore.FieldValue.serverTimestamp();
   db.collection(window.RATES_COLLECTION)
     .doc(code)
-    .set({
-      code,
-      name: name || code,
-      rateToLYD: rate,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
+    .set({ code, name: name || code, rateToLYD: rate, updatedAt: now })
     .then(() => {
+      db.collection(window.RATES_COLLECTION).doc(code).collection("history").add({ rateToLYD: rate, updatedAt: now });
       showStatus(`${code} added.`, false);
       document.getElementById("add-form").reset();
     })
     .catch((err) => showStatus("Add failed: " + err.message, true));
 }
 
-function ensureSeedUSD() {
-  db.collection(window.RATES_COLLECTION)
-    .doc("USD")
-    .get()
-    .then((doc) => {
+function ensureSeedCurrencies() {
+  const seeds = [
+    { code: "USD", name: "US Dollar", rateToLYD: 10 },
+    { code: "EUR", name: "Euro", rateToLYD: 11 }
+  ];
+  seeds.forEach((seed) => {
+    const ref = db.collection(window.RATES_COLLECTION).doc(seed.code);
+    ref.get().then((doc) => {
       if (!doc.exists) {
-        db.collection(window.RATES_COLLECTION).doc("USD").set({
-          code: "USD",
-          name: "US Dollar",
-          rateToLYD: 10,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        const now = firebase.firestore.FieldValue.serverTimestamp();
+        ref.set({ ...seed, updatedAt: now });
+        ref.collection("history").add({ rateToLYD: seed.rateToLYD, updatedAt: now });
       }
     });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("year").textContent = new Date().getFullYear();
+  applyAdminLang(getAdminLang());
+  document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => setAdminLang(btn.dataset.lang));
+  });
+
   if (!initFirebase()) return;
 
-  ensureSeedUSD();
+  ensureSeedCurrencies();
 
   db.collection(window.RATES_COLLECTION).onSnapshot(
     (snapshot) => {
       const rates = [];
       snapshot.forEach((doc) => rates.push({ id: doc.id, ...doc.data() }));
+      latestRates = rates;
       renderTable(rates);
     },
     (err) => showStatus("Load failed: " + err.message, true)

@@ -374,12 +374,65 @@ table.rates-table td.rate-value {
   border-radius: var(--radius);
   padding: 32px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 20px;
 }
 
-@media (max-width: 720px) {
-  .contact-card { grid-template-columns: 1fr; }
+.ltr-text {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+
+/* Currency / direction pill toggles */
+.pill-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.pill-toggle button {
+  border: 2px solid var(--gray-300);
+  background: var(--white);
+  color: var(--gray-700);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.pill-toggle button.active {
+  background: var(--deep-blue);
+  border-color: var(--deep-blue);
+  color: var(--white);
+}
+
+.rate-updated {
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+/* History chart */
+.chart-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.chart-card canvas {
+  max-height: 320px;
+}
+
+.chart-empty {
+  color: var(--gray-500);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px 0;
 }
 
 .contact-item {

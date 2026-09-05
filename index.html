@@ -27,64 +27,75 @@
 
 <section class="hero">
   <div class="container">
-    <h1 data-i18n="hero_title">شركتك الموثوقة للدفع الإلكتروني والخدمات الرقمية</h1>
-    <p data-i18n="hero_sub">نقدم حلول الدفع الإلكتروني، خدمات البطاقات الرقمية، دفع الفواتير، وشحن الألعاب والتطبيقات.</p>
-    <span class="service-line" data-i18n="hero_service">خدمتنا الحالية: تحويل الأموال من Binance إلى ليبيا بدينار ليبي، بشفافية كاملة في الرسوم.</span>
+    <h1 data-i18n="hero_service">نحوّل أموالك من Binance إلى ليبيا بدينار ليبي، بشفافية كاملة في الرسوم.</h1>
   </div>
 </section>
 
 <div class="container">
   <div class="rate-card">
+    <div id="currency-toggle" class="pill-toggle"></div>
     <div class="rate-main">
       <div>
-        <div class="label" data-i18n="rate_label">دولار أمريكي إلى دينار ليبي</div>
+        <div class="label" id="rate-currency-label">USD إلى الدينار الليبي</div>
         <div class="value" id="main-rate-value">10</div>
+        <div class="rate-updated"><span data-i18n="last_updated">آخر تحديث</span>: <span id="rate-updated-value">-</span></div>
       </div>
       <span class="rate-badge" data-i18n="rate_title">سعر الصرف اليوم</span>
     </div>
-    <div id="other-rates-wrap">
-      <p class="section-sub" style="margin-bottom:12px;" data-i18n="other_currencies">عملات أخرى</p>
-      <table class="rates-table">
-        <thead>
-          <tr>
-            <th data-i18n="th_code">الرمز</th>
-            <th data-i18n="th_name">العملة</th>
-            <th data-i18n="th_rate">السعر مقابل الدينار الليبي</th>
-          </tr>
-        </thead>
-        <tbody id="rates-table-body"></tbody>
-      </table>
-    </div>
+    <p class="section-sub" style="margin:0;" data-i18n="rate_sell_note">السعر الموضح هو سعر البيع.</p>
   </div>
 </div>
 
 <section>
   <div class="container">
     <h2 class="section-title" data-i18n="calc_title">احسب تحويلك</h2>
-    <p class="section-sub" data-i18n="calc_sub">أدخل المبلغ بالدولار وشاهد النتيجة فوراً، بما في ذلك رسومنا الشفافة بنسبة 2%.</p>
 
     <div class="calc-card">
       <div class="calc-input">
-        <label for="calc-usd-input" data-i18n="calc_input_label">المبلغ المرسل (دولار أمريكي)</label>
+        <div id="direction-toggle" class="pill-toggle"></div>
+        <label for="calc-amount-input"><span id="calc-amount-label-text">المبلغ</span></label>
         <div class="input-wrap">
-          <span>$</span>
-          <input type="number" id="calc-usd-input" value="100" min="0" step="any">
+          <input type="number" id="calc-amount-input" placeholder="100" min="0" step="any">
+          <span id="calc-amount-currency">USD</span>
         </div>
       </div>
       <div class="calc-results">
-        <div class="result-row">
-          <span class="r-label" data-i18n="r_total">الإجمالي بالدينار الليبي</span>
-          <span class="r-value" id="result-total">0 LYD</span>
+        <div id="forward-results">
+          <div class="result-row">
+            <span class="r-label" data-i18n="r_total">الإجمالي بالدينار الليبي</span>
+            <span class="r-value" id="result-total">0 LYD</span>
+          </div>
+          <div class="result-row fee">
+            <span class="r-label" data-i18n="r_fee">رسوم الخدمة (2%)</span>
+            <span class="r-value" id="result-fee">0</span>
+          </div>
+          <div class="result-row highlight">
+            <span class="r-label" data-i18n="r_recipient">المبلغ الذي يستلمه المستفيد بعد خصم الرسوم</span>
+            <span class="r-value" id="result-recipient">0 LYD</span>
+          </div>
         </div>
-        <div class="result-row fee">
-          <span class="r-label" data-i18n="r_fee">رسوم الخدمة (2%)</span>
-          <span class="r-value" id="result-fee">0</span>
-        </div>
-        <div class="result-row highlight">
-          <span class="r-label" data-i18n="r_recipient">المبلغ الذي يستلمه المستفيد في ليبيا (98%)</span>
-          <span class="r-value" id="result-recipient">0 LYD</span>
+        <div id="reverse-results" class="hidden">
+          <div class="result-row highlight">
+            <span class="r-label" data-i18n="r_reverse">المبلغ المكافئ</span>
+            <span class="r-value" id="result-reverse">0</span>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title" data-i18n="history_title">سجل الأسعار</h2>
+    <div class="chart-card">
+      <p class="section-sub" style="margin-bottom:16px;">
+        <span id="history-currency-label">USD</span> → LYD
+      </p>
+      <div id="chart-canvas-wrap">
+        <canvas id="history-chart" height="90"></canvas>
+      </div>
+      <div id="chart-empty" class="chart-empty hidden"></div>
     </div>
   </div>
 </section>
@@ -101,13 +112,13 @@
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h3 data-i18n="step2_title">أخبرنا بمن سيستلم المبلغ</h3>
-        <p data-i18n="step2_body">زوّدنا باسم وبيانات المستلم في ليبيا.</p>
+        <h3 data-i18n="step2_title">اسم ورقم هاتف المستلم</h3>
+        <p data-i18n="step2_body">زوّدنا باسم المستلم ورقم هاتفه.</p>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <h3 data-i18n="step3_title">نحوّل ونسلّم فوراً</h3>
-        <p data-i18n="step3_body">نحوّل المبلغ حسب سعر اليوم ونسلّم 98% للمستفيد، مع احتفاظنا بـ 2% رسوم شفافة.</p>
+        <h3 data-i18n="step3_title">توصيل سريع</h3>
+        <p data-i18n="step3_body">نوصل المبلغ إلى المستلم في ليبيا بسرعة.</p>
       </div>
     </div>
   </div>
@@ -128,8 +139,12 @@
     <p class="section-sub" data-i18n="contact_sub">تواصل معنا عبر أي من القنوات التالية لبدء عملية التحويل.</p>
     <div class="contact-card">
       <div class="contact-item">
+        <div class="c-label" data-i18n="contact_call">اتصال</div>
+        <div class="c-value ltr-text">+218 92-5088566</div>
+      </div>
+      <div class="contact-item">
         <div class="c-label" data-i18n="contact_whatsapp">واتساب</div>
-        <div class="c-value" data-i18n="placeholder_value">سيتم إضافته لاحقاً</div>
+        <div class="c-value ltr-text">+218 92-5088566</div>
       </div>
       <div class="contact-item">
         <div class="c-label" data-i18n="contact_telegram">تيليجرام</div>
@@ -149,6 +164,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>

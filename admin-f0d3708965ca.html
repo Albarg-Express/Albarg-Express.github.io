@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rate Admin — ALBARG Express</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,29 +15,23 @@
 <div class="admin-wrap">
   <div class="admin-header">
     <img src="assets/logo.png" alt="ALBARG Express logo">
-    <h1>ALBARG Express — Rate Admin</h1>
-  </div>
-
-  <div class="warning-box">
-    <strong>Security notice</strong>
-    This page has no password — it is protected only by its long random filename ("security through obscurity"),
-    as requested. Anyone who guesses or finds this exact URL can view and edit the live exchange rates, since
-    GitHub Pages serves every file publicly and cannot hide it. Firestore's security rules also allow public
-    write access to the <code>rates</code> collection (required since there's no login), so anyone with the
-    Firebase config values could write to the database directly, not just through this page. Add real
-    authentication (Firebase Auth, a login-gated backend, etc.) before handling real money.
+    <h1 data-i18n="admin_title">ALBARG Express — Rate Admin</h1>
+    <div class="lang-toggle" style="margin-inline-start:auto;">
+      <button type="button" data-lang="ar">عربي</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
   </div>
 
   <div class="admin-card">
-    <h2>Current Currencies</h2>
+    <h2 data-i18n="current_title">Current Currencies</h2>
     <table class="admin-table">
       <thead>
         <tr>
-          <th>Code</th>
-          <th>Name</th>
-          <th>Rate to LYD</th>
-          <th>Last Updated</th>
-          <th>Actions</th>
+          <th data-i18n="th_code">Code</th>
+          <th data-i18n="th_name">Name</th>
+          <th data-i18n="th_rate">Rate to LYD</th>
+          <th data-i18n="th_updated">Last Updated</th>
+          <th data-i18n="th_actions">Actions</th>
         </tr>
       </thead>
       <tbody id="admin-table-body"></tbody>
@@ -44,27 +40,27 @@
   </div>
 
   <div class="admin-card">
-    <h2>Add Currency</h2>
+    <h2 data-i18n="add_title">Add Currency</h2>
     <form id="add-form" class="add-form">
       <div>
-        <label for="new-code">Code</label>
+        <label for="new-code" data-i18n="lbl_code">Code</label>
         <input type="text" id="new-code" placeholder="EUR" maxlength="5" required>
       </div>
       <div>
-        <label for="new-name">Name</label>
+        <label for="new-name" data-i18n="lbl_name">Name</label>
         <input type="text" id="new-name" placeholder="Euro">
       </div>
       <div>
-        <label for="new-rate">Rate to LYD</label>
+        <label for="new-rate" data-i18n="lbl_rate">Rate to LYD</label>
         <input type="number" id="new-rate" step="any" min="0" placeholder="5.4" required>
       </div>
       <div></div>
-      <button type="submit" class="btn btn-primary">Add Currency</button>
+      <button type="submit" class="btn btn-primary" data-i18n="btn_add">Add Currency</button>
     </form>
   </div>
 
   <footer>
-    <div>&copy; <span id="year"></span> ALBARG Express — Admin</div>
+    <div>&copy; <span id="year"></span> ALBARG Express — <span data-i18n="admin_footer">Admin</span></div>
   </footer>
 </div>
 
