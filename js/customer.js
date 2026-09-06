@@ -54,6 +54,9 @@ const I18N = {
     contact_facebook: "فيسبوك",
     contact_hours: "ساعات العمل",
     hours_value: "10 صباحاً - 10 مساءً، من السبت إلى الخميس",
+    download_binance_title: "حمّل تطبيق Binance",
+    app_store: "آب ستور",
+    google_play: "جوجل بلاي",
     about_title: "من نحن",
     about_body: "نحن شركة متخصصة في حلول الدفع الإلكتروني والخدمات الرقمية، نعمل على تقديم خدمات الدفع الإلكتروني، البطاقات الرقمية، دفع الفواتير، وشحن الألعاب والتطبيقات. المزيد من الخدمات قادمة قريباً.",
     footer_text: "جميع الحقوق محفوظة"
@@ -95,6 +98,9 @@ const I18N = {
     contact_facebook: "Facebook",
     contact_hours: "Working Hours",
     hours_value: "10 AM - 10 PM, Saturday to Thursday",
+    download_binance_title: "Download Binance",
+    app_store: "App Store",
+    google_play: "Google Play",
     about_title: "About Us",
     about_body: "We are a company specialized in digital payment solutions and electronic services, offering electronic payments, digital card services, bill payments, and game/app top-ups. More services are coming soon.",
     footer_text: "All rights reserved"

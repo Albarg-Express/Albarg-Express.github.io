@@ -586,6 +586,48 @@ footer .contact-item:hover {
   background: rgba(255,255,255,0.2);
 }
 
+.download-binance {
+  text-align: center;
+  margin: 0 0 28px;
+}
+
+.download-title {
+  color: rgba(255,255,255,0.85);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.store-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--pure-white);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.store-badge:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.store-badge .c-icon {
+  width: 18px;
+  height: 18px;
+}
+
 .footer-copy {
   text-align: center;
   border-top: 1px solid rgba(255,255,255,0.15);
